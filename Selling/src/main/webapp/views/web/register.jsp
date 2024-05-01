@@ -49,6 +49,12 @@
 		href="fonts/material-icon/css/material-design-iconic-font.min.css">
 	<link rel="stylesheet"
 		href="${pageContext.request.contextPath}/templates/web/css/main.css">
+	<script nonce="${nonce}">
+		document.getElementById('loginLink').addEventListener('click', function(event) {
+			event.preventDefault(); // Prevent the default behavior of the link
+			window.location.href = 'login'; // Redirect to the login page
+		});
+	</script>
 </head>
 <body>
 	<div class="bg__img">
@@ -117,15 +123,11 @@
 				</div>
 
 				<!-- right-box -->
-				<div
-					class="col-md-6 right-box d-flex justify-content-center align-items-center flex-column">
+				<div class="col-md-6 right-box d-flex justify-content-center align-items-center flex-column">
 					<figure>
-						<img
-							src="${pageContext.request.contextPath}/templates/web/images/signup-image.jpg"
-							alt="sing up image">
+						<img src="${pageContext.request.contextPath}/templates/web/images/signup-image.jpg" alt="sign up image">
 					</figure>
-					<a href="login" class="signup-image-link"
-						style="text-decoration: none;">I am already member</a>
+					<a href="#" id="loginLink" class="signup-image-link" style="text-decoration: none;">I am already a member</a>
 				</div>
 			</div>
 		</div>

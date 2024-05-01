@@ -2,7 +2,8 @@ package orishop.controllers.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-
+import java.security.SecureRandom;
+import java.util.Base64;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,7 +17,6 @@ import orishop.models.AccountModels;
 import orishop.models.RoleEnum;
 import orishop.services.AccountServiceImpl;
 import orishop.services.IAccountService;
-import orishop.util.CSRFTokenGenerator;
 import orishop.util.Constant;
 import orishop.util.Email;
 
@@ -33,6 +33,30 @@ public class WebHomeControllers extends HttpServlet {
 		String url = req.getRequestURI().toString();
 
 		if (url.contains("web/register")) {
+
+			// Generate a random nonce
+			SecureRandom random = new SecureRandom();
+			byte[] nonceBytes = new byte[16]; // 128 bits
+			random.nextBytes(nonceBytes);
+			String nonce = Base64.getEncoder().encodeToString(nonceBytes);
+
+			// Set the CSP header with the nonce and other directives
+			String cspHeader = "script-src 'nonce-" + nonce + "' 'strict-dynamic'; " +
+			"object-src 'none'; " +
+			"base-uri 'none'; " +
+			"frame-ancestors 'none'; " +
+			"form-action 'self'; " +
+			"style-src 'self'; " +
+			"img-src 'self'; " +
+			"connect-src 'self'; " +
+			"font-src 'self'; " +
+			"media-src 'self'; " +
+			"manifest-src 'self'; " +
+			"frame-src 'none';";
+
+			resp.setHeader("Content-Security-Policy", cspHeader);
+			req.setAttribute("nonce", nonce);
+
 			req.getRequestDispatcher("/views/web/register.jsp").forward(req, resp);
 		} else if (url.contains("web/VerifyCode")) {
 			req.getRequestDispatcher("/views/web/verify.jsp").forward(req, resp);
@@ -145,14 +169,37 @@ public class WebHomeControllers extends HttpServlet {
 	}
 
 	private void getLogin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		// check session
-		HttpSession session = req.getSession(true);
+		// Generate a random nonce
+		SecureRandom random = new SecureRandom();
+		byte[] nonceBytes = new byte[16]; // 128 bits
+		random.nextBytes(nonceBytes);
+		String nonce = Base64.getEncoder().encodeToString(nonceBytes);
+
+		// Set the CSP header with the nonce and other directives
+		String cspHeader = "script-src 'nonce-" + nonce + "' 'strict-dynamic'; " +
+		"object-src 'none'; " +
+		"base-uri 'none'; " +
+		"frame-ancestors 'none'; " +
+		"form-action 'self'; " +
+		"style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com/; " + // Allow styles from 'self' and Google Fonts, cdn, cloudflare
+		"img-src 'self'; " +
+		"connect-src 'self'; " +
+		"font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com/; " + // Allow fonts from 'self' and Google Fonts
+		"media-src 'self'; " +
+		"manifest-src 'self'; " +
+		"frame-src 'none';";
+
+		resp.setHeader("Content-Security-Policy", cspHeader);
+
+	
+		// Check session
+		HttpSession session = req.getSession(false);
 		if (session != null && session.getAttribute("account") != null) {
 			resp.sendRedirect(req.getContextPath() + "/web/waiting");
 			return;
 		}
-
-		// check cookie
+	
+		// Check cookie
 		Cookie[] cookies = req.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
@@ -164,13 +211,40 @@ public class WebHomeControllers extends HttpServlet {
 				}
 			}
 		}
-
+	
+		// Set the nonce attribute for the view
+		req.setAttribute("nonce", nonce);
 		req.getRequestDispatcher("/views/web/login.jsp").forward(req, resp);
 	}
+	
 
 	private void postLogin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		resp.setContentType("text/html");
 		resp.setCharacterEncoding("UTF-8");
+
+		// Generate a random nonce
+		SecureRandom random = new SecureRandom();
+		byte[] nonceBytes = new byte[16]; // 128 bits
+		random.nextBytes(nonceBytes);
+		String nonce = Base64.getEncoder().encodeToString(nonceBytes);
+
+		// Set the CSP header with the nonce and other directives
+		String cspHeader = "script-src 'nonce-" + nonce + "' 'strict-dynamic'; " +
+		"object-src 'none'; " +
+		"base-uri 'none'; " +
+		"frame-ancestors 'none'; " +
+		"form-action 'self'; " +
+		"style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com/; " + // Allow styles from 'self' and Google Fonts, cdn, cloudflare
+		"img-src 'self'; " +
+		"connect-src 'self'; " +
+		"font-src 'self' https://fonts.gstatic.com; " + // Allow fonts from 'self' and Google Fonts
+		"media-src 'self'; " +
+		"manifest-src 'self'; " +
+		"frame-src 'none';";
+
+		resp.setHeader("Content-Security-Policy", cspHeader);
+
+
+
 		req.setCharacterEncoding("UTF-8");
 		String username = req.getParameter("username");
 		String password = req.getParameter("password");
@@ -205,12 +279,16 @@ public class WebHomeControllers extends HttpServlet {
 			} else {
 				alertMsg = "Tài khoản đã bị khóa, liên hệ  Admin nhé";
 				req.setAttribute("error", alertMsg);
+				req.setAttribute("nonce", nonce);
+
 				req.getRequestDispatcher("/views/web/login.jsp").forward(req, resp);
 			}
 
 		} else {
 			alertMsg = "Tài khoản hoặc mật khẩu không đúng";
 			req.setAttribute("error", alertMsg);
+			req.setAttribute("nonce", nonce);
+
 			req.getRequestDispatcher("/views/web/login.jsp").forward(req, resp);
 
 		}
@@ -240,6 +318,31 @@ public class WebHomeControllers extends HttpServlet {
 	private void postRegister(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		resp.setContentType("text/html");
 		resp.setCharacterEncoding("UTF-8");
+
+
+		// Generate a random nonce
+		SecureRandom random = new SecureRandom();
+		byte[] nonceBytes = new byte[16]; // 128 bits
+		random.nextBytes(nonceBytes);
+		String nonce = Base64.getEncoder().encodeToString(nonceBytes);
+		
+		// Set the CSP header with the nonce and other directives
+		String cspHeader = "script-src 'nonce-" + nonce + "' 'strict-dynamic'; " +
+		"object-src 'none'; " +
+		"base-uri 'none'; " +
+		"frame-ancestors 'none'; " +
+		"form-action 'self'; " +
+		"style-src 'self'; " +
+		"img-src 'self'; " +
+		"connect-src 'self'; " +
+		"font-src 'self'; " +
+		"media-src 'self'; " +
+		"manifest-src 'self'; " +
+		"frame-src 'none';";
+
+		resp.setHeader("Content-Security-Policy", cspHeader);
+		req.setAttribute("nonce", nonce);
+
 		req.setCharacterEncoding("UTF-8");
 		String username = req.getParameter("username");
 		String password = req.getParameter("password");

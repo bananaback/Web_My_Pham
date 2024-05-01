@@ -41,6 +41,19 @@
 	href="fonts/material-icon/css/material-design-iconic-font.min.css">
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/templates/web/css/main.css">
+	<script nonce="${nonce}">
+		document.getElementById('registerLink').addEventListener('click', function(event) {
+			event.preventDefault(); // Prevent the default behavior of the link
+			window.location.href = this.getAttribute('href'); // Navigate to the link's href attribute
+		});
+	</script>
+	<script nonce="${nonce}">
+		document.getElementById('forgotPasswordLink').addEventListener('click', function(event) {
+			event.preventDefault(); // Prevent the default behavior of the link
+			window.location.href = "${pageContext.request.contextPath}/web/forgotpass"; // Navigate to the forgot password page
+		});
+	</script>
+	
 </head>
 <body>
 
@@ -105,10 +118,9 @@
 											me</small></label>
 								</div>
 								<div class="forgot">
-									<small><a
-										href="${pageContext.request.contextPath }/web/forgotpass">Forgot
-											Password?</a></small>
+									<small><a href="#" id="forgotPasswordLink">Forgot Password?</a></small>
 								</div>
+								
 							</div>
 							<div class="input-group mb-3">
 								<button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Login</button>
@@ -122,10 +134,10 @@
 									with Google</small>
 							</button>
 						</div>
-						<div class="row text-center ">
-							<small>Don't have account? <a href="register">Sign Up</a></small>
-
+						<div class="row text-center">
+							<small>Don't have an account? <a href="${pageContext.request.contextPath}/web/register" id="registerLink">Sign Up</a></small>
 						</div>
+						
 					</div>
 				</div>
 			</div>
