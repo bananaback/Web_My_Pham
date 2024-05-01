@@ -100,35 +100,36 @@ public class CustomerDAOImp implements ICustomerDAO{
 		return customer;
 	}
 	*/
-	@Override
-	public List<CustomerModels> findCustomerByCustomerName(String customerName) {
-	    String sql = "SELECT * FROM CUSTOMER WHERE customerName LIKE N'%" + customerName + "'";
-	    List<CustomerModels> listcustomer = new ArrayList<CustomerModels>();
-	    try {
-	        new DBConnectionSQLServer();
-	        Connection conn = DBConnectionSQLServer.getConnectionW();
-	        PreparedStatement ps = conn.prepareStatement(sql);
-	        ResultSet rs = ps.executeQuery();
-	        while (rs.next()) {
-	        	CustomerModels customer = new CustomerModels();
-	        	customer.setCustomerId(rs.getInt("customerId"));
-				customer.setCustomerName(rs.getString("customerName"));
-				customer.setBirthday(rs.getDate("birthday"));
-				customer.setGender(rs.getString("gender"));
-				customer.setAddress(rs.getString("address"));
-				customer.setPhone(rs.getLong("phone"));
-				customer.setMail(rs.getString("mail"));
-				customer.setRank(rs.getString("rank"));
-				customer.setReputation(rs.getInt("reputation"));
-				customer.setRewardPoints(rs.getInt("rewardPoints"));
-				customer.setAccountId(rs.getInt("accountId"));
-				listcustomer.add(customer);
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return listcustomer;
-	}
+
+    @Override
+    public List<CustomerModels> findCustomerByCustomerName(String customerName) {
+        String sql = "SELECT * FROM CUSTOMER WHERE customerName LIKE ?";
+        List<CustomerModels> listcustomer = new ArrayList<>();
+        try {
+            Connection conn = DBConnectionSQLServer.getConnectionW();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, "%" + customerName + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                CustomerModels customer = new CustomerModels();
+                customer.setCustomerId(rs.getInt("customerId"));
+                customer.setCustomerName(rs.getString("customerName"));
+                customer.setBirthday(rs.getDate("birthday"));
+                customer.setGender(rs.getString("gender"));
+                customer.setAddress(rs.getString("address"));
+                customer.setPhone(rs.getLong("phone"));
+                customer.setMail(rs.getString("mail"));
+                customer.setRank(rs.getString("rank"));
+                customer.setReputation(rs.getInt("reputation"));
+                customer.setRewardPoints(rs.getInt("rewardPoints"));
+                customer.setAccountId(rs.getInt("accountId"));
+                listcustomer.add(customer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return listcustomer;
+    }
 	
 	public CustomerModels findCustomerByAccountID(int accountId) {
 		CustomerModels customer = new CustomerModels();

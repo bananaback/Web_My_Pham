@@ -82,36 +82,37 @@ public class ProductDAOImp implements IProductDAO {
 		return listProduct;
 	}
 	
-	@Override
-	public List<ProductModels> findProduct(String productName) {
-		List<ProductModels> listProduct = new ArrayList<ProductModels>();
+	
+    @Override
+    public List<ProductModels> findProduct(String productName) {
+        List<ProductModels> listProduct = new ArrayList<>();
 
-		try {
+        try {
+            String query = "SELECT * FROM PRODUCT WHERE ProductName LIKE ?";
+            conn = DBConnectionSQLServer.getConnectionW();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, "%" + productName + "%");
+            rs = ps.executeQuery();
 
-			String query = "select * from PRODUCT where ProductName like N'%" + productName + "%'";
-			conn = DBConnectionSQLServer.getConnectionW();
-			ps = conn.prepareStatement(query);
-			rs = ps.executeQuery();
+            while (rs.next()) {
+                ProductModels product = new ProductModels();
+                product.setProductId(rs.getInt(1));
+                product.setProductName(rs.getString(2));
+                product.setDescription(rs.getString(3));
+                product.setStock(rs.getInt(4));
+                product.setAmount(rs.getInt(5));
+                product.setPrice(rs.getFloat(6));
+                product.setCategoryId(rs.getInt(7));
+                product.setImageURL(rs.getString(8));
+                listProduct.add(product);
+            }
 
-			while (rs.next()) {
-				ProductModels product = new ProductModels();
-				product.setProductId(rs.getInt(1));
-				product.setProductName(rs.getString(2));
-				product.setDescription(rs.getString(3));
-				product.setStock(rs.getInt(4));
-				product.setAmount(rs.getInt(5));
-				product.setPrice(rs.getFloat(6));
-				product.setCategoryId(rs.getInt(7));
-				product.setImageURL(rs.getString(8));
-				listProduct.add(product);
-			}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return listProduct;
-	}
+        return listProduct;
+    }
 
 	@Override
 	public List<ProductModels> filterProductDescByPrice() {

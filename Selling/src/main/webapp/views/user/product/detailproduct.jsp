@@ -1,4 +1,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" 
+    prefix="fn" %> 
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -316,7 +320,7 @@
 						<p class="comment-time">${i.reviewDate }</p>
 					</div>
 					<div class="comment-content">
-						<p class="comment">${i.review }</p>
+						<p class="comment">${fn:escapeXml(i.review) }</p>
 						<hr class="mb-4 divider"
 							style="height: 1px; background-color: #1266f1; opacity: 1;">
 					</div>

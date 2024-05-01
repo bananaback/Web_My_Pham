@@ -136,65 +136,69 @@ public class EmployeeDAOImp implements IEmployeeDAO{
 		return employee;
 	}
 
-	@Override
-	public List<EmployeeModels> findShipper(String name) {
-		String sql = "SELECT * FROM Employee where job='Shipper' and employeeName LIKE N'%" + name + "'";
-		List<EmployeeModels> listEmp = new ArrayList<EmployeeModels>();
-		try {
-			conn = DBConnectionSQLServer.getConnectionW();
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			while(rs.next()) {
-				EmployeeModels employee = new EmployeeModels();
-				employee.setEmployeeId(rs.getInt("employeeId"));
-	            employee.setEmployeeName(rs.getString("employeeName"));
-	            employee.setBirthdate(rs.getDate("birthdate"));
-	            employee.setGender(rs.getString("gender"));
-	            employee.setAddress(rs.getString("address"));
-	            employee.setPhone(rs.getString("phone"));
-	            employee.setMail(rs.getString("mail"));
-	            employee.setJob(rs.getString("job"));
-	            employee.setAccountId(rs.getInt("accountId"));
-	            employee.setActivityArea(rs.getString("activityArea"));
-	            employee.setImageURL(rs.getString("imageURL"));
-	            listEmp.add(employee);
-			}
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-		return listEmp;
-	}
 	
-	
-	@Override
-	public List<EmployeeModels> findSellerBySellerName(String sellerName){
-		String sql = "SELECT * FROM EMPLOYEE WHERE job = 'Seller' AND employeeName LIKE N'%" + sellerName + "'";
-		List<EmployeeModels> listemployee = new ArrayList<EmployeeModels>();
-		try {
-			conn = DBConnectionSQLServer.getConnectionW();
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			while(rs.next()) {
-			EmployeeModels employee = new EmployeeModels();
-            employee.setEmployeeId(rs.getInt("employeeId"));
-            employee.setEmployeeName(rs.getString("employeeName"));
-            employee.setBirthdate(rs.getDate("birthdate"));
-            employee.setGender(rs.getString("gender"));
-            employee.setAddress(rs.getString("address"));
-            employee.setPhone(rs.getString("phone"));
-            employee.setMail(rs.getString("mail"));
-            employee.setJob(rs.getString("job"));
-            employee.setAccountId(rs.getInt("accountId"));
-            employee.setActivityArea(rs.getString("activityArea"));
-            employee.setImageURL(rs.getString("imageURL"));
-            
-            listemployee.add(employee);
-			}
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-		return listemployee;
-	}
+    @Override
+    public List<EmployeeModels> findShipper(String name) {
+        String sql = "SELECT * FROM Employee where job='Shipper' and employeeName LIKE ?";
+        List<EmployeeModels> listEmp = new ArrayList<>();
+        try {
+            Connection conn = DBConnectionSQLServer.getConnectionW();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            String parameterizedName = "%" + name + "%";
+            ps.setString(1, parameterizedName);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()) {
+                EmployeeModels employee = new EmployeeModels();
+                employee.setEmployeeId(rs.getInt("employeeId"));
+                employee.setEmployeeName(rs.getString("employeeName"));
+                employee.setBirthdate(rs.getDate("birthdate"));
+                employee.setGender(rs.getString("gender"));
+                employee.setAddress(rs.getString("address"));
+                employee.setPhone(rs.getString("phone"));
+                employee.setMail(rs.getString("mail"));
+                employee.setJob(rs.getString("job"));
+                employee.setAccountId(rs.getInt("accountId"));
+                employee.setActivityArea(rs.getString("activityArea"));
+                employee.setImageURL(rs.getString("imageURL"));
+                listEmp.add(employee);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return listEmp;
+    }
+
+
+    @Override
+    public List<EmployeeModels> findSellerBySellerName(String sellerName){
+        String sql = "SELECT * FROM EMPLOYEE WHERE job = 'Seller' AND employeeName LIKE ?";
+        List<EmployeeModels> listemployee = new ArrayList<>();
+        try {
+            Connection conn = DBConnectionSQLServer.getConnectionW();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            String parameterizedName = "%" + sellerName + "%";
+            ps.setString(1, parameterizedName);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()) {
+                EmployeeModels employee = new EmployeeModels();
+                employee.setEmployeeId(rs.getInt("employeeId"));
+                employee.setEmployeeName(rs.getString("employeeName"));
+                employee.setBirthdate(rs.getDate("birthdate"));
+                employee.setGender(rs.getString("gender"));
+                employee.setAddress(rs.getString("address"));
+                employee.setPhone(rs.getString("phone"));
+                employee.setMail(rs.getString("mail"));
+                employee.setJob(rs.getString("job"));
+                employee.setAccountId(rs.getInt("accountId"));
+                employee.setActivityArea(rs.getString("activityArea"));
+                employee.setImageURL(rs.getString("imageURL"));
+                listemployee.add(employee);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return listemployee;
+    }
 	@Override
 	public void updateEmployee(EmployeeModels employee) {
 		String query = "update Employee set employeeName = ?, birthdate = ?, gender = ?, "
