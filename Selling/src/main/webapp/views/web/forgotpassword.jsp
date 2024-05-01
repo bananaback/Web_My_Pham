@@ -53,7 +53,9 @@
 					</c:if>
 					<div class="input-group mb-3">
 						<span class="input-group-text" id="username-addon"> <i class="fa-solid fa-user"></i> <!-- Thay đổi bi bi-person thành icon bạn muốn sử dụng -->
-								</span> <input type="text"
+								</span> 
+								<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}" />
+								<input type="text"
 									class="form-control form-control-lg bg-light fs-6"
 									placeholder="Username" name="username"
 									aria-describedby="username-addon">

@@ -46,4 +46,28 @@
         <url-pattern>/shipper/*</url-pattern>
     </filter-mapping>
 
+	 <!-- Define the filter -->
+    <filter>
+        <filter-name>CsrfTokenFilter</filter-name>
+        <filter-class>orishop.filters.CsrfTokenFilter</filter-class>
+    </filter>
+
+    <!-- Map the filter to all requests -->
+    <filter-mapping>
+        <filter-name>CsrfTokenFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+	<!-- Define the CSRF filter -->
+    <filter>
+        <filter-name>CsrfFilter</filter-name>
+        <filter-class>orishop.filters.CsrfFilter</filter-class>
+    </filter>
+
+    <!-- Map the CSRF filter to all requests -->
+    <filter-mapping>
+        <filter-name>CsrfFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
 </web-app>

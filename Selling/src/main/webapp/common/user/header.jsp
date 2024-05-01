@@ -63,6 +63,7 @@
 		<form class="d-flex" role="search"
 			action="/Selling/user/product/searchProduct" method="post">
 			<div class="input-group">
+				<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}" />
 				<input class="form-control border-end-0 border" type="search"
 					placeholder="Search" id="example-search-input" name="searchProduct">
 				<span class="input-group-append">

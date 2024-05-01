@@ -77,6 +77,7 @@
 
 						<form action="register" method="post">
 							<div class="input-group mb-4">
+								<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}" />
 								<input type="text"
 									class="form-control form-control-lg bg-light fs-6"
 									placeholder="Username" name="username">

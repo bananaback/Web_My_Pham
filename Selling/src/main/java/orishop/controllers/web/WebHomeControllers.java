@@ -16,6 +16,7 @@ import orishop.models.AccountModels;
 import orishop.models.RoleEnum;
 import orishop.services.AccountServiceImpl;
 import orishop.services.IAccountService;
+import orishop.util.CSRFTokenGenerator;
 import orishop.util.Constant;
 import orishop.util.Email;
 
@@ -145,11 +146,12 @@ public class WebHomeControllers extends HttpServlet {
 
 	private void getLogin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// check session
-		HttpSession session = req.getSession(false);
+		HttpSession session = req.getSession(true);
 		if (session != null && session.getAttribute("account") != null) {
 			resp.sendRedirect(req.getContextPath() + "/web/waiting");
 			return;
 		}
+
 		// check cookie
 		Cookie[] cookies = req.getCookies();
 		if (cookies != null) {

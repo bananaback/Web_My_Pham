@@ -79,7 +79,6 @@
 							<div class="alert alert-danger">${error}</div>
 						</c:if>
 						<form action="login" method="post">
-
 							<div class="input-group mb-3">
 								<span class="input-group-text" id="username-addon"> <i class="fa-solid fa-user"></i> <!-- Thay đổi bi bi-person thành icon bạn muốn sử dụng -->
 								</span> <input type="text"
@@ -90,7 +89,9 @@
 
 							<div class="input-group mb-4">
 								<span class="input-group-text" id="password-addon"> <i class="fa-solid fa-key"></i>
-								</span> <input type="password"
+								</span> 
+								<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}" />
+								<input type="password"
 									class="form-control form-control-lg bg-light fs-6"
 									placeholder="Password" name="password"
 									aria-describedby="password-addon">
