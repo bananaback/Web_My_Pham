@@ -32,6 +32,10 @@ public class WebHomeControllers extends HttpServlet {
 
 		String url = req.getRequestURI().toString();
 
+		// Add SameSite attribute to JSESSIONID cookie
+        String sameSite = "Strict"; // You can set this to "Lax" if needed
+        resp.setHeader("Set-Cookie", "JSESSIONID=" + req.getSession().getId() + "; Path=/Selling; HttpOnly; SameSite=" + sameSite);
+
 		if (url.contains("web/register")) {
 
 			// Generate a random nonce
@@ -130,10 +134,16 @@ public class WebHomeControllers extends HttpServlet {
 	}
 
 	private void saveRememberMe(HttpServletResponse resp, String username) {
-		Cookie cookie = new Cookie(Constant.COOKIE_REMEBER, username);
-		cookie.setMaxAge(30 * 60);
-		resp.addCookie(cookie);
+		String cookieValue = username;
+		String cookieName = Constant.COOKIE_REMEBER;
+		String cookiePath = "/Selling"; // Specify the path for the cookie
+		int maxAgeInSeconds = 30 * 60; // 30 minutes
+	
+		String cookieHeader = String.format("%s=%s; Path=%s; Max-Age=%d; HttpOnly; SameSite=Strict", cookieName, cookieValue, cookiePath, maxAgeInSeconds);
+		resp.addHeader("Set-Cookie", cookieHeader);
 	}
+	
+	
 
 	private void postForgotPassword(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -190,6 +200,7 @@ public class WebHomeControllers extends HttpServlet {
 		"frame-src 'none';";
 
 		resp.setHeader("Content-Security-Policy", cspHeader);
+		resp.setHeader("X-Content-Type-Options", "nosniff");
 
 	
 		// Check session
@@ -242,7 +253,7 @@ public class WebHomeControllers extends HttpServlet {
 		"frame-src 'none';";
 
 		resp.setHeader("Content-Security-Policy", cspHeader);
-
+		resp.setHeader("X-Content-Type-Options", "nosniff");
 
 
 		req.setCharacterEncoding("UTF-8");

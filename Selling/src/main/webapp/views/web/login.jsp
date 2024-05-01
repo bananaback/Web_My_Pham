@@ -41,18 +41,7 @@
 	href="fonts/material-icon/css/material-design-iconic-font.min.css">
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/templates/web/css/main.css">
-	<script nonce="${nonce}">
-		document.getElementById('registerLink').addEventListener('click', function(event) {
-			event.preventDefault(); // Prevent the default behavior of the link
-			window.location.href = this.getAttribute('href'); // Navigate to the link's href attribute
-		});
-	</script>
-	<script nonce="${nonce}">
-		document.getElementById('forgotPasswordLink').addEventListener('click', function(event) {
-			event.preventDefault(); // Prevent the default behavior of the link
-			window.location.href = "${pageContext.request.contextPath}/web/forgotpass"; // Navigate to the forgot password page
-		});
-	</script>
+	
 	
 </head>
 <body>
@@ -118,7 +107,7 @@
 											me</small></label>
 								</div>
 								<div class="forgot">
-									<small><a href="#" id="forgotPasswordLink">Forgot Password?</a></small>
+									<small><a id="forgotPasswordLink">Forgot Password?</a></small>
 								</div>
 								
 							</div>
@@ -135,12 +124,24 @@
 							</button>
 						</div>
 						<div class="row text-center">
-							<small>Don't have an account? <a href="${pageContext.request.contextPath}/web/register" id="registerLink">Sign Up</a></small>
+							<small>Don't have an account? <a id="registerLink">Sign Up</a></small>
 						</div>
 						
 					</div>
 				</div>
 			</div>
 		</div>
+		<script nonce="${nonce}" defer>
+			document.getElementById('registerLink').addEventListener('click', function(event) {
+				event.preventDefault(); // Prevent the default behavior of the link
+				window.location.href = "${pageContext.request.contextPath}/web/register" // Navigate to the link's href attribute
+			});
+		</script>
+		<script nonce="${nonce}" defer>
+			document.getElementById('forgotPasswordLink').addEventListener('click', function(event) {
+				event.preventDefault(); // Prevent the default behavior of the link
+				window.location.href = "${pageContext.request.contextPath}/web/forgotpass"; // Navigate to the forgot password page
+			});
+		</script>
 </body>
 </html>
