@@ -23,4 +23,27 @@
 		<tracking-mode>COOKIE</tracking-mode>
 	</session-config>
 
+	<filter>
+		<filter-name>AuthenticationFilter</filter-name>
+		<filter-class>orishop.filters.AuthenticationFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>AuthenticationFilter</filter-name>
+		<url-pattern>/*</url-pattern> <!-- Apply to all endpoints -->
+	</filter-mapping>
+
+	<!-- Define the AuthorizationFilter -->
+    <filter>
+        <filter-name>AuthorizationFilter</filter-name>
+        <filter-class>orishop.filters.AuthorizationFilter</filter-class>
+    </filter>
+
+    <!-- Map the filter to URLs -->
+    <filter-mapping>
+        <filter-name>AuthorizationFilter</filter-name>
+        <url-pattern>/admin/*</url-pattern>
+        <url-pattern>/seller/*</url-pattern>
+        <url-pattern>/shipper/*</url-pattern>
+    </filter-mapping>
+
 </web-app>

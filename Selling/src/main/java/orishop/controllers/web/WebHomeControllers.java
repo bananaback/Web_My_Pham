@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import orishop.models.AccountModels;
+import orishop.models.RoleEnum;
 import orishop.services.AccountServiceImpl;
 import orishop.services.IAccountService;
 import orishop.util.Constant;
@@ -220,13 +221,13 @@ public class WebHomeControllers extends HttpServlet {
 		if (session != null && session.getAttribute("account") != null) {
 			AccountModels u = (AccountModels) session.getAttribute("account");
 			req.setAttribute("username", u.getUsername());
-			if (u.getRoleID() == 1) {
+			if (u.getRoleID() == RoleEnum.USER.getRoleId()) {
 				resp.sendRedirect(req.getContextPath() + "/user/home");
-			} else if (u.getRoleID() == 2) {
+			} else if (u.getRoleID() == RoleEnum.ADMIN.getRoleId()) {
 				resp.sendRedirect(req.getContextPath() + "/admin/home");
-			} else if (u.getRoleID() == 3) {
+			} else if (u.getRoleID() == RoleEnum.SELLER.getRoleId()) {
 				resp.sendRedirect(req.getContextPath() + "/seller/home");
-			} else if (u.getRoleID() == 4) {
+			} else if (u.getRoleID() == RoleEnum.SHIPPER.getRoleId()) {
 				resp.sendRedirect(req.getContextPath() + "/shipper/home");
 			}
 		} else {
