@@ -65,8 +65,10 @@ public class AccountServiceImpl implements IAccountService {
 
     @Override
     public AccountModels login(String username, String password) {
+        // Warning: legacy code implement this findOne to return empty account model instead of null =))
+        // So, maintainers, we need to check for null field
         AccountModels user = this.findOne(username);
-        if (user != null) {
+        if (user != null && user.getPassword() != null) {
             // Verify password using bcrypt
             if (BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified) {
                 return user;

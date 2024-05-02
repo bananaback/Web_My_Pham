@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -26,6 +28,8 @@ import orishop.util.InputSanitizer;
 
 public class WebHomeControllers extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static final Logger LOGGER = Logger.getLogger(Email.class.getName());
+
 
 	IAccountService accountService = new AccountServiceImpl();
 
@@ -79,28 +83,33 @@ public class WebHomeControllers extends HttpServlet {
 
 	}
 
-	 private void getLogout(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession();
-        session.removeAttribute("account");
-
-        Cookie[] cookies = req.getCookies();
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (Constant.COOKIE_REMEBER.equals(cookie.getName())) {
-                    // Sanitize the cookie value to remove potential CRLF characters
-                    String sanitizedValue = InputSanitizer.sanitizeInput(cookie.getValue());
-                    cookie.setValue(sanitizedValue);
-
-                    // Add the cookie with the sanitized value
-                    cookie.setMaxAge(0);
-                    resp.addCookie(cookie);
-                }
-            }
-        }
-
-        resp.sendRedirect(req.getContextPath() + "/user/home");
-    }
+	private void getLogout(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		HttpSession session = req.getSession();
+		session.removeAttribute("account");
+	
+		Cookie[] cookies = req.getCookies();
+	
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (Constant.COOKIE_REMEBER.equals(cookie.getName())) {
+					// Sanitize the cookie value to remove potential CRLF characters
+					String sanitizedValue = InputSanitizer.sanitizeInput(cookie.getValue());
+	
+					// Create a new Cookie object with the sanitized value
+					Cookie sanitizedCookie = new Cookie(cookie.getName(), sanitizedValue);
+	
+					// Set the same attributes as the original cookie
+					sanitizedCookie.setPath(cookie.getPath());
+					sanitizedCookie.setMaxAge(0);
+	
+					// Add the sanitized cookie to the response
+					resp.addCookie(sanitizedCookie);
+				}
+			}
+		}
+	
+		resp.sendRedirect(req.getContextPath() + "/user/home");
+	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -228,10 +237,16 @@ public class WebHomeControllers extends HttpServlet {
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals("username")) {
-					session = req.getSession(true);
-					session.setAttribute("username", cookie.getValue());
-					resp.sendRedirect(req.getContextPath() + "/waiting");
-					return;
+					// Sanitize the cookie value to remove potential CRLF characters
+					String sanitizedValue = InputSanitizer.sanitizeInput(cookie.getValue());
+	
+					// Validate the sanitized value
+					if (sanitizedValue.matches("[a-zA-Z0-9]+")) { // Example validation, adjust as needed
+						session = req.getSession(true);
+						session.setAttribute("username", sanitizedValue);
+						resp.sendRedirect(req.getContextPath() + "/waiting");
+						return;
+					}
 				}
 			}
 		}
@@ -301,17 +316,24 @@ public class WebHomeControllers extends HttpServlet {
 		AccountModels user = accountService.login(username, password);
 		if (user != null) {
 			if (user.getStatus() == 1) {
+				// Sanitize user object before setting it as a session attribute
+				AccountModels sanitizedUser = sanitizeUser(user);
 
-				// tạo session
+				//HERE
+            	LOGGER.log(Level.INFO, "SANITIZED USER:" + sanitizedUser.getUsername());
+				
+				// Create or retrieve session
 				HttpSession session = req.getSession(true);
-				session.setAttribute("account", user);
+				
+				// Set the sanitized user object as a session attribute
+				session.setAttribute("account", sanitizedUser);
 
 				if (isRememberMe) {
 					saveRememberMe(resp, username);
 				}
-
+				
+				// Redirect the user
 				resp.sendRedirect(req.getContextPath() + "/web/waiting");
-
 			} else {
 				alertMsg = "Tài khoản đã bị khóa, liên hệ  Admin nhé";
 				req.setAttribute("error", alertMsg);
@@ -330,6 +352,23 @@ public class WebHomeControllers extends HttpServlet {
 		}
 	}
 
+	private AccountModels sanitizeUser(AccountModels user) {
+		// Create a new instance of AccountModels with sanitized values
+		AccountModels sanitizedUser = new AccountModels();
+		sanitizedUser.setAccountID(user.getAccountID());
+		sanitizedUser.setUsername(InputSanitizer.sanitizeInput(user.getUsername()));
+		sanitizedUser.setPassword(user.getPassword()); // Assuming password doesn't need sanitization
+		sanitizedUser.setMail(InputSanitizer.sanitizeInput(user.getMail()));
+		sanitizedUser.setRoleID(user.getRoleID());
+		sanitizedUser.setStatus(user.getStatus());
+		sanitizedUser.setCode(user.getCode());
+		
+		// Add sanitization for other fields as needed
+		
+		return sanitizedUser;
+	}
+	
+
 	private void getWaiting(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		// kiem tra session
@@ -345,6 +384,8 @@ public class WebHomeControllers extends HttpServlet {
 				resp.sendRedirect(req.getContextPath() + "/seller/home");
 			} else if (u.getRoleID() == RoleEnum.SHIPPER.getRoleId()) {
 				resp.sendRedirect(req.getContextPath() + "/shipper/home");
+			} else {
+				LOGGER.log(Level.INFO, "WAITING failed to determine:" + u.getRoleID());
 			}
 		} else {
 			resp.sendRedirect(req.getContextPath() + "/web/login");
@@ -396,21 +437,24 @@ public class WebHomeControllers extends HttpServlet {
 				req.setAttribute("error", alertMsg);
 				req.getRequestDispatcher("/views/web/register.jsp").forward(req, resp);
 			} else {
-				Email sm = new Email();
+				Email emailSender = new Email();
 				// get the 6-digit code
-				String code = sm.getRandom();
-				AccountModels user = new AccountModels(username, email, code);
-				boolean test = sm.sendEmail(user);
+				String code = emailSender.getRandom();
+				String sanitizedUsername = InputSanitizer.sanitizeInput(username);
+				String sanitizedEmail = InputSanitizer.sanitizeInput(email);
+				AccountModels newUser = new AccountModels(sanitizedUsername, sanitizedEmail, code);
+				boolean emailSent = emailSender.sendEmail(newUser);
 
-				if (test) {
+
+
+				if (emailSent) {
 					HttpSession session = req.getSession();
-					session.setAttribute("account", user);
+					session.setAttribute("account", newUser);
 
-					boolean isSuccess = accountService.register(username, password, email, code);
+					boolean isSuccess = accountService.register(sanitizedUsername, password, sanitizedEmail, code);
 
 					if (isSuccess) {
 						resp.sendRedirect(req.getContextPath() + "/web/VerifyCode");
-
 					} else {
 						alertMsg = "Lỗi hệ thống!";
 						req.setAttribute("error", alertMsg);
@@ -420,7 +464,6 @@ public class WebHomeControllers extends HttpServlet {
 					alertMsg = "Lỗi khi gửi mail!!!!!!!!!!!!!!";
 					req.setAttribute("error", alertMsg);
 					req.getRequestDispatcher("/views/web/register.jsp").forward(req, resp);
-
 				}
 			}
 		} else {
