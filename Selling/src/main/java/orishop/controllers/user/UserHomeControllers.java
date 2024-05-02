@@ -32,6 +32,7 @@ import orishop.services.IProductService;
 import orishop.services.IRatingService;
 import orishop.services.ProductServiceImp;
 import orishop.services.RatingServiceImpl;
+import orishop.util.CSRFTokenGenerator;
 
 @WebServlet(urlPatterns = {"/user/home", "/user/editInfor", "/user/updateuser"})
 
@@ -62,7 +63,9 @@ public class UserHomeControllers extends HttpServlet {
 	private void getHome(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		HttpSession session = req.getSession();
 		AccountModels user = (AccountModels) session.getAttribute("account");
+
 		session.setAttribute("ratingService", ratingService);
+		
 		if (user != null) {
 			CustomerModels cus = cusService.findCustomerByAccountID(user.getAccountID());
 			CartModels cart1 = cartService.findCartByCustomerID(cus.getCustomerId());
