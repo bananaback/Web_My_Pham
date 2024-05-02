@@ -91,12 +91,13 @@ public class WebHomeControllers extends HttpServlet {
 	
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
-				if (Constant.COOKIE_REMEBER.equals(cookie.getName())) {
+				String sanitizedCName = InputSanitizer.sanitizeNonAlphaNumeric(cookie.getName());
+				if (Constant.COOKIE_REMEBER.equals(sanitizedCName)) {
 					// Sanitize the cookie value to remove potential CRLF characters
 					String sanitizedValue = InputSanitizer.sanitizeInput(cookie.getValue());
 	
 					// Create a new Cookie object with the sanitized value
-					Cookie sanitizedC = new Cookie(cookie.getName(), sanitizedValue);
+					Cookie sanitizedC = new Cookie(sanitizedCName, sanitizedValue);
 	
 					// Set the same attributes as the original cookie
 					sanitizedC.setPath(cookie.getPath());
