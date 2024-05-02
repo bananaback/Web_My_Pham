@@ -15,11 +15,15 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import orishop.DAO.AccountDAOImpl;
+import orishop.DAO.IAccountDAO;
 import orishop.models.AccountModels;
+import at.favre.lib.crypto.bcrypt.BCrypt;
 
 public class Email {
     private static final String EMAIL_CONFIG_FILE = "config.properties";    
-	private static final Logger LOGGER = Logger.getLogger(Email.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Email.class.getName());
+    private IAccountDAO accountDAO = new AccountDAOImpl();
 
     private Properties loadEmailConfig() {
         Properties props = new Properties();
@@ -43,7 +47,7 @@ public class Email {
         String fromEmail = loadEmailConfig().getProperty("email.username");
         String password = loadEmailConfig().getProperty("email.password");
 
-		LOGGER.log(Level.INFO, "Sending email from: " + fromEmail);
+        LOGGER.log(Level.INFO, "Sending email from: " + fromEmail);
         LOGGER.log(Level.INFO, "Email password: " + password);
 
         try {
@@ -78,7 +82,7 @@ public class Email {
         String fromEmail = loadEmailConfig().getProperty("email.username");
         String password = loadEmailConfig().getProperty("email.password");
 
-		LOGGER.log(Level.INFO, "Sending email from: " + fromEmail);
+        LOGGER.log(Level.INFO, "Sending email from: " + fromEmail);
         LOGGER.log(Level.INFO, "Email password: " + password);
         try {
             Properties pr = configEmail(new Properties());
@@ -93,10 +97,26 @@ public class Email {
             mess.setFrom(new InternetAddress(fromEmail));
             mess.setRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
 
-            mess.setSubject("Yours Password");
-            // Assuming PasswordEncryption and Constant classes are properly implemented
-            String passwordDecryption = PasswordEncryption.decrypt(user.getPassword(), Constant.SECRETKEY, Constant.SALT);
-            mess.setText("Password: " + passwordDecryption);
+            mess.setSubject("Temporary Password");
+
+            // Generating a temporary password
+            String temporaryPassword = getRandom();
+            
+            // Hashing the temporary password using bcrypt
+            String hashedPassword = BCrypt.withDefaults().hashToString(12, temporaryPassword.toCharArray());
+            
+            // Setting the hashed temporary password in the database
+            accountDAO.updatePassword(user.getAccountID(), hashedPassword);
+            
+            // Composing the email content
+            StringBuilder emailContent = new StringBuilder();
+            emailContent.append("Hello ").append(user.getUsername()).append(",\n\n");
+            emailContent.append("You have requested a temporary password to access your account.\n\n");
+            emailContent.append("Your temporary password is: ").append(temporaryPassword).append("\n\n");
+            emailContent.append("Please remember to change your password after logging in.\n\n");
+            emailContent.append("Best regards,\nThe Orishop Team");
+            
+            mess.setText(emailContent.toString());
 
             Transport.send(mess);
 

@@ -13,6 +13,7 @@ public interface IAccountDAO {
 	void insertregister(AccountModels model);
 	void update(AccountModels model);
 	void updatestatus(AccountModels model);
+	void updatePassword(int userId, String newPassword);
 	
 	void delete(int id);
 	boolean checkExistUsername(String username);
