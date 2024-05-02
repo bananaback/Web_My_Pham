@@ -32,7 +32,6 @@ import orishop.services.IProductService;
 import orishop.services.IRatingService;
 import orishop.services.ProductServiceImp;
 import orishop.services.RatingServiceImpl;
-import orishop.util.CSRFTokenGenerator;
 
 @WebServlet(urlPatterns = {"/user/home", "/user/editInfor", "/user/updateuser"})
 

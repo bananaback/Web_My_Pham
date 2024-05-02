@@ -38,7 +38,7 @@
 		<div class="container d-flex justify-content-center w-200 min-vh-100"
 			style="padding-top: 200px;">
 			<form action="VerifyCode" method="post">
-
+				<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}" />
 				<div class="row border rounded-5 p-3 bg-white shadow edit"
 					style="width: 500px; height: fit-content;">
 					<p style="font-weight: 700;">Hệ thống đã gửi mã kích hoạt đến

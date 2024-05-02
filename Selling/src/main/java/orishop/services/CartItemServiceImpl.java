@@ -6,7 +6,6 @@ import java.util.List;
 import orishop.DAO.ICartItemDAO;
 import orishop.DAO.CartItemDAOImpl;
 import orishop.models.CartItemModels;
-import orishop.models.CustomerModels;
 
 public class CartItemServiceImpl implements ICartItemService{
 

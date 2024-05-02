@@ -8,8 +8,6 @@ import java.util.List;
 
 
 import orishop.models.AccountModels;
-import orishop.util.Constant;
-import orishop.util.PasswordEncryption;
 
 public class AccountDAOImpl implements IAccountDAO {
 	
@@ -102,15 +100,14 @@ public class AccountDAOImpl implements IAccountDAO {
 
 	@Override
 	public void insertregister(AccountModels model) {
-		String sql = "Insert into Account (mail, username, password, status, roleID, code) values (?,?,?,?,?,?)";
-       
+		String sql = "INSERT INTO Account (mail, username, password, status, roleID, code) VALUES (?,?,?,?,?,?)";
+		
 		try {
 			conn = DBConnectionSQLServer.getConnectionW();
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, model.getMail());
 			ps.setString(2, model.getUsername());
-			String password = PasswordEncryption.encrypt(model.getPassword(), Constant.SECRETKEY, Constant.SALT);
-			ps.setString(3, password);
+			ps.setString(3, model.getPassword());
 			ps.setInt(4, model.getStatus());
 			ps.setInt(5, model.getRoleID());
 			ps.setString(6, model.getCode());
@@ -119,12 +116,11 @@ public class AccountDAOImpl implements IAccountDAO {
 
 			conn.close();
 
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
 
 	@Override
 	public void update(AccountModels model) {
@@ -188,6 +184,24 @@ public class AccountDAOImpl implements IAccountDAO {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+    public void updatePassword(int userId, String newPassword) {
+        String sql = "UPDATE Account SET password = ? WHERE accountId = ?";
+        try {
+            conn = DBConnectionSQLServer.getConnectionW();
+            ps = conn.prepareStatement(sql);
+            
+            ps.setString(1, newPassword); // Assuming the password is already hashed at the service level
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 	@Override
 	public void updatestatus(AccountModels model) {
