@@ -33,8 +33,10 @@ public class WebHomeControllers extends HttpServlet {
 		String url = req.getRequestURI().toString();
 
 		// Add SameSite attribute to JSESSIONID cookie
-        String sameSite = "Strict"; // You can set this to "Lax" if needed
-        resp.setHeader("Set-Cookie", "JSESSIONID=" + req.getSession().getId() + "; Path=/Selling; HttpOnly; SameSite=" + sameSite);
+		String sameSite = "Strict"; // You can set this to "Lax" if needed
+		String cookieHeader = "JSESSIONID=" + req.getSession().getId() + "; Path=/Selling; HttpOnly; Secure; SameSite=" + sameSite;
+		resp.setHeader("Set-Cookie", cookieHeader);
+
 
 		if (url.contains("web/register")) {
 
@@ -139,9 +141,10 @@ public class WebHomeControllers extends HttpServlet {
 		String cookiePath = "/Selling"; // Specify the path for the cookie
 		int maxAgeInSeconds = 30 * 60; // 30 minutes
 	
-		String cookieHeader = String.format("%s=%s; Path=%s; Max-Age=%d; HttpOnly; SameSite=Strict", cookieName, cookieValue, cookiePath, maxAgeInSeconds);
+		String cookieHeader = String.format("%s=%s; Path=%s; Max-Age=%d; HttpOnly; SameSite=Strict; Secure", cookieName, cookieValue, cookiePath, maxAgeInSeconds);
 		resp.addHeader("Set-Cookie", cookieHeader);
 	}
+	
 	
 	
 
@@ -184,7 +187,7 @@ public class WebHomeControllers extends HttpServlet {
 		byte[] nonceBytes = new byte[16]; // 128 bits
 		random.nextBytes(nonceBytes);
 		String nonce = Base64.getEncoder().encodeToString(nonceBytes);
-
+	
 		// Set the CSP header with the nonce and other directives
 		String cspHeader = "script-src 'nonce-" + nonce + "' 'strict-dynamic'; " +
 		"object-src 'none'; " +
@@ -194,14 +197,17 @@ public class WebHomeControllers extends HttpServlet {
 		"style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com/; " + // Allow styles from 'self' and Google Fonts, cdn, cloudflare
 		"img-src 'self'; " +
 		"connect-src 'self'; " +
-		"font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com/; " + // Allow fonts from 'self' and Google Fonts
+		"font-src 'self' https://fonts.gstatic.com; " + // Allow fonts from 'self' and Google Fonts
 		"media-src 'self'; " +
 		"manifest-src 'self'; " +
 		"frame-src 'none';";
-
+	
 		resp.setHeader("Content-Security-Policy", cspHeader);
 		resp.setHeader("X-Content-Type-Options", "nosniff");
-
+		//resp.setContentType("text/html;charset=UTF-8");
+	
+		// Add Strict-Transport-Security header
+		resp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
 	
 		// Check session
 		HttpSession session = req.getSession(false);
@@ -228,9 +234,11 @@ public class WebHomeControllers extends HttpServlet {
 		req.getRequestDispatcher("/views/web/login.jsp").forward(req, resp);
 	}
 	
+	
 
 	private void postLogin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		resp.setCharacterEncoding("UTF-8");
+		//resp.setContentType("text/html;charset=UTF-8");
 
 		// Check if the request contains XML content
 		if (req.getContentType() != null && req.getContentType().toLowerCase().contains("xml")) {
@@ -261,6 +269,9 @@ public class WebHomeControllers extends HttpServlet {
 
 		resp.setHeader("Content-Security-Policy", cspHeader);
 		resp.setHeader("X-Content-Type-Options", "nosniff");
+		// Add Strict-Transport-Security header
+		resp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+	
 
 
 		req.setCharacterEncoding("UTF-8");
