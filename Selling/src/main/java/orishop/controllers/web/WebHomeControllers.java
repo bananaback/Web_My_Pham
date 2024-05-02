@@ -96,14 +96,17 @@ public class WebHomeControllers extends HttpServlet {
 					String sanitizedValue = InputSanitizer.sanitizeInput(cookie.getValue());
 	
 					// Create a new Cookie object with the sanitized value
-					Cookie sanitizedCookie = new Cookie(cookie.getName(), sanitizedValue);
+					Cookie sanitizedC = new Cookie(cookie.getName(), sanitizedValue);
 	
 					// Set the same attributes as the original cookie
-					sanitizedCookie.setPath(cookie.getPath());
-					sanitizedCookie.setMaxAge(0);
+					sanitizedC.setPath(cookie.getPath());
+					sanitizedC.setMaxAge(0);
+
+					sanitizedC.setHttpOnly(true);
+					sanitizedC.setSecure(true);
 	
 					// Add the sanitized cookie to the response
-					resp.addCookie(sanitizedCookie);
+					resp.addCookie(sanitizedC);
 				}
 			}
 		}
