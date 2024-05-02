@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import orishop.models.ProductModels;
 import orishop.models.RatingModels;
 import orishop.services.CustomerServiceImp;
 import orishop.services.ICustomerService;

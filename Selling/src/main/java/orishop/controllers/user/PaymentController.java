@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import orishop.models.CartItemModels;
 import orishop.services.CartItemServiceImpl;
 import orishop.services.CartServiceImpl;
 import orishop.services.CategoryServiceImp;

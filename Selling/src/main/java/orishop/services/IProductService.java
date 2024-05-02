@@ -1,9 +1,7 @@
 package orishop.services;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import orishop.models.EmployeeModels;
 import orishop.models.ProductModels;
 
 public interface IProductService {

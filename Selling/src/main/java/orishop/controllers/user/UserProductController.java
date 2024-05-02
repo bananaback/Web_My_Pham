@@ -12,8 +12,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import orishop.models.AccountModels;
-import orishop.models.CartModels;
 import orishop.models.CategoryModels;
 import orishop.models.CustomerModels;
 import orishop.models.ProductModels;
