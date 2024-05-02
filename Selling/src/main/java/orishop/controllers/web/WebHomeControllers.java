@@ -110,7 +110,6 @@ public class WebHomeControllers extends HttpServlet {
 	
 		resp.sendRedirect(req.getContextPath() + "/user/home");
 	}
-	
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
