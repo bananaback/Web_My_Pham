@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -16,7 +18,8 @@ import javax.mail.internet.MimeMessage;
 import orishop.models.AccountModels;
 
 public class Email {
-    private static final String EMAIL_CONFIG_FILE = "config.properties";
+    private static final String EMAIL_CONFIG_FILE = "config.properties";    
+	private static final Logger LOGGER = Logger.getLogger(Email.class.getName());
 
     private Properties loadEmailConfig() {
         Properties props = new Properties();
@@ -39,6 +42,9 @@ public class Email {
         String toEmail = account.getMail();
         String fromEmail = loadEmailConfig().getProperty("email.username");
         String password = loadEmailConfig().getProperty("email.password");
+
+		LOGGER.log(Level.INFO, "Sending email from: " + fromEmail);
+        LOGGER.log(Level.INFO, "Email password: " + password);
 
         try {
             Properties pr = configEmail(new Properties());
@@ -71,6 +77,9 @@ public class Email {
         String toEmail = user.getMail();
         String fromEmail = loadEmailConfig().getProperty("email.username");
         String password = loadEmailConfig().getProperty("email.password");
+
+		LOGGER.log(Level.INFO, "Sending email from: " + fromEmail);
+        LOGGER.log(Level.INFO, "Email password: " + password);
         try {
             Properties pr = configEmail(new Properties());
             Session session = Session.getInstance(pr, new Authenticator() {

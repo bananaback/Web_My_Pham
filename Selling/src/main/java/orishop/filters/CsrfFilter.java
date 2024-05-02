@@ -2,9 +2,15 @@ package orishop.filters;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
+
+import orishop.util.Email;
+
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CsrfFilter implements Filter {
+	private static final Logger LOGGER = Logger.getLogger(Email.class.getName());
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -18,15 +24,24 @@ public class CsrfFilter implements Filter {
             if (session != null) {
                 String sessionToken = (String) session.getAttribute("csrfToken");
 
+                String rawToken = httpRequest.getParameter("csrfToken");
                 // Retrieve CSRF token from the request and sanitize it
-                String requestToken = sanitizeCSRFToken(httpRequest.getParameter("csrfToken"));
+                if (rawToken != null) {
+                    String requestToken = sanitizeCSRFToken(rawToken);
+                     // Compare tokens
+                    if (sessionToken == null || !sessionToken.equals(requestToken)) {
+                        LOGGER.log(Level.INFO, "request token:" + requestToken);
+                        LOGGER.log(Level.INFO, "session token:" + sessionToken);
 
-                // Compare tokens
-                if (sessionToken == null || !sessionToken.equals(requestToken)) {
-                    // Token mismatch, reject the request
+                        // Token mismatch, reject the request
+                        httpResponse.sendRedirect(httpRequest.getContextPath() + "/views/web/csrf-error.jsp");
+                        return;
+                    }
+                } else {
                     httpResponse.sendRedirect(httpRequest.getContextPath() + "/views/web/csrf-error.jsp");
                     return;
                 }
+               
             } else {
                 // Session not found, reject the request
                 httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Session Not Found");
