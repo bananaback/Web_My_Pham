@@ -232,6 +232,13 @@ public class WebHomeControllers extends HttpServlet {
 	private void postLogin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		resp.setCharacterEncoding("UTF-8");
 
+		// Check if the request contains XML content
+		if (req.getContentType() != null && req.getContentType().toLowerCase().contains("xml")) {
+			resp.setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+			resp.getWriter().println("XML content is not supported for login.");
+			return;
+		}
+
 		// Generate a random nonce
 		SecureRandom random = new SecureRandom();
 		byte[] nonceBytes = new byte[16]; // 128 bits
@@ -266,7 +273,7 @@ public class WebHomeControllers extends HttpServlet {
 			isRememberMe = true;
 		}
 		String alertMsg = "";
-		if (username.isEmpty() || password.isEmpty()) {
+		if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
 			alertMsg = "Tài khoản hoặc mật khẩu không đúng";
 			req.setAttribute("error", alertMsg);
 			req.getRequestDispatcher("/views/web/login.jsp").forward(req, resp);

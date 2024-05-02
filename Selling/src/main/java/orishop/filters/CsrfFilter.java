@@ -18,13 +18,13 @@ public class CsrfFilter implements Filter {
             if (session != null) {
                 String sessionToken = (String) session.getAttribute("csrfToken");
 
-                // Retrieve CSRF token from the request
-                String requestToken = httpRequest.getParameter("csrfToken");
+                // Retrieve CSRF token from the request and sanitize it
+                String requestToken = sanitizeCSRFToken(httpRequest.getParameter("csrfToken"));
 
                 // Compare tokens
                 if (sessionToken == null || !sessionToken.equals(requestToken)) {
                     // Token mismatch, reject the request
-                    httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "CSRF Token Validation Failed" + requestToken + " - " + sessionToken);
+                    httpResponse.sendRedirect(httpRequest.getContextPath() + "/views/web/csrf-error.jsp");
                     return;
                 }
             } else {
@@ -36,5 +36,11 @@ public class CsrfFilter implements Filter {
 
         // Continue the filter chain for other requests or if the CSRF check passed
         chain.doFilter(request, response);
+    }
+    
+    // Method to sanitize the CSRF token to prevent XSLT injection
+    private String sanitizeCSRFToken(String token) {
+        // Remove any XML tags and special characters that could be part of an XSLT injection attack
+        return token.replaceAll("<[^>]*>", "").trim();
     }
 }
